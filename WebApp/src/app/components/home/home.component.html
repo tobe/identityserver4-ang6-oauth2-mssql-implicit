@@ -1,0 +1,15 @@
+<div *ngIf="!isUserLoggedIn">
+    <h1>Home</h1>
+    <p>You are not logged in</p>
+    <button (click)="onLogin()" type="button">Click to login</button>
+</div>
+
+<div *ngIf="isUserLoggedIn">
+    <h1>Home</h1>
+    <p>
+        You are logged in, click to visit the
+        <a [routerLink]="['/protected-area']">Protected area</a>
+    </p>
+
+    <button type="button" (click)="onLogout()">Sign out</button>
+</div>
