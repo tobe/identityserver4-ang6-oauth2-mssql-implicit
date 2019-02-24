@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ResourceServer.Controllers
@@ -13,14 +14,31 @@ namespace ResourceServer.Controllers
         public IActionResult Get()
         {
             var userInfo = HttpContext.User.Identity;
-            return Ok(userInfo);
+            var claimInfo = HttpContext.User.Claims;
+            var isInAdministrator = User.IsInRole("Administrator");
+            var isInOverriden = User.IsInRole("Overridden");
+            var result = new {
+                a = userInfo,
+                b = claimInfo,
+                isInAdministrator,
+                isInOverriden
+            };
+            return Ok(result);
         }
 
-        // GET api/values/5
-        [HttpGet("{id}")]
-        public ActionResult<string> Get(int id)
+        // GET api/values/MoraMocOboje
+        [HttpGet("MoraMocOboje")]
+        [Authorize("MoraMocOboje")]
+        public ActionResult<string> GetMoraMocOboje(int id)
         {
-            return "value";
+            return "Mora moc oboje! Ti to mozes!";
+        }
+
+        // GET api/values/MozeBrisat
+        [HttpGet("MozeBrisat")]
+        [Authorize("MozeBrisat")]
+        public ActionResult<string> GetMozeBrisat(int id) {
+            return "Sorry nema brisanja za tebe...";
         }
 
         // POST api/values

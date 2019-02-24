@@ -17,4 +17,7 @@ export const authConfig: AuthConfig = {
 
   // To also enable single-sign-out set the url for your auth-server's logout-endpoint here
   logoutUrl: environment.issuer + '/connect/endsession?id_token={{id_token}}',
+
+  // Da server dobije osim samo access_token i id_token u kojem su nasi lipi podatci o useru...
+  oidc: true
 };

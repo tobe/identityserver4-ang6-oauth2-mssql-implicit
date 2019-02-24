@@ -5,10 +5,10 @@
 export const environment = {
   production: false,
 
-  issuer: 'https://localhost:44348',
+  issuer: 'http://localhost:49670',
   clientId: 'spa',
   scope: 'openid profile api1',
-  apiUrl: 'https://localhost:9001/api'
+  apiUrl: 'http://localhost:49672/api'
 };
 
 /*

@@ -4,6 +4,7 @@
 
 using AuthServer.Data;
 using AuthServer.Models;
+using IdentityServer4.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -30,11 +31,15 @@ namespace AuthServer
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddDbContext<ApplicationDbContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+                //options.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
+                options.UseSqlite(Configuration.GetConnectionString("DefaultConnection")));
 
             services.AddIdentity<ApplicationUser, IdentityRole>()
                 .AddEntityFrameworkStores<ApplicationDbContext>()
                 .AddDefaultTokenProviders();
+
+            // Test claims
+            services.AddTransient<IProfileService, ProfileService>();
 
             services.AddMvc();
 
@@ -44,8 +49,7 @@ namespace AuthServer
                 iis.AutomaticAuthentication = false;
             });
 
-            var builder = services.AddIdentityServer(options =>
-            {
+            var builder = services.AddIdentityServer(options => {
                 options.Events.RaiseErrorEvents = true;
                 options.Events.RaiseInformationEvents = true;
                 options.Events.RaiseFailureEvents = true;
@@ -54,15 +58,16 @@ namespace AuthServer
                 .AddInMemoryIdentityResources(Config.GetIdentityResources())
                 .AddInMemoryApiResources(Config.GetApis())
                 .AddInMemoryClients(Config.GetClients())
-                .AddAspNetIdentity<ApplicationUser>();
+                .AddAspNetIdentity<ApplicationUser>()
+                .AddProfileService<ProfileService>(); // test if up there not work
 
             var keySection = Configuration.GetSection("SigninKeyCredentials");
             var keyFilePath = keySection.GetValue<string>("KeyFilePath");
             keyFilePath = Path.Combine(Environment.ContentRootPath, keyFilePath);
             var keyFilePassword = keySection.GetValue<string>("KeyFilePassword");
 
-            builder.AddSigningCredential(new X509Certificate2(keyFilePath, keyFilePassword));
-            //builder.AddDeveloperSigningCredential();
+            //builder.AddSigningCredential(new X509Certificate2(keyFilePath, keyFilePassword));
+            builder.AddDeveloperSigningCredential();
 
             services.AddAuthentication()
                 .AddGoogle(options =>

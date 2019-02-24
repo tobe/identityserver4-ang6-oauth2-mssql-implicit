@@ -4,7 +4,7 @@ import { NgModule } from '@angular/core';
 import { AppComponent } from './app.component';
 import { ProtectedAreaComponent } from './components/protected-area/protected-area.component';
 import { HttpClientModule } from '../../node_modules/@angular/common/http';
-import { OAuthModule } from '../../node_modules/angular-oauth2-oidc';
+import { OAuthModule, OAuthStorage } from '../../node_modules/angular-oauth2-oidc';
 import { environment } from '../environments/environment';
 
 import { RouterModule, Routes } from '@angular/router';
@@ -39,7 +39,10 @@ import { AuthGuard } from './services/auth.guard';
       ]
     )
   ],
-  providers: [AuthGuard],
+  providers: [
+    AuthGuard,
+    { provide: OAuthStorage, useValue: localStorage }, // ovo da moze priko tabova drugih radit
+  ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

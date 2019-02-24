@@ -11,6 +11,7 @@ export class UserService {
   ) { }
 
   isUserLoggedIn(): boolean {
+    console.log(this._oauthService.hasValidAccessToken(), this._oauthService.hasValidIdToken());
     return this._oauthService.hasValidIdToken() && this._oauthService.hasValidAccessToken();
   }
 

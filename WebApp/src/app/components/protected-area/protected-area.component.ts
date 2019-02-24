@@ -24,5 +24,15 @@ export class ProtectedAreaComponent implements OnInit {
       res => console.log(res),
       err => console.log(err)
     );
+
+    this._httpClient.get(`${environment.apiUrl}/values/MoraMocOboje`).subscribe(
+      res => console.log(res),
+      err => console.log(err)
+    );
+
+    this._httpClient.get(`${environment.apiUrl}/values/MozeBrisat`).subscribe(
+      res => console.log(res),
+      err => console.log(err)
+    );
   }
 }
