@@ -31,7 +31,7 @@ namespace AuthServer {
                 new Claim("Avion", "[\"Pariz\", \"Zagreb\"]"),
                 new Claim("CanRead", "yes"),
                 new Claim("CanWrite", "yes"),
-                new Claim("CanDelete", "yes") // dodao sam ovo, ovo ce ic dinamicki jel
+                //new Claim("CanDelete", "yes")
             };
 
             context.IssuedClaims.AddRange(claims);

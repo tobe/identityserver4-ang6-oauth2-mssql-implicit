@@ -32,6 +32,13 @@ namespace AuthServer
                 if (!adminRole)
                     await roleManager.CreateAsync(new IdentityRole("Administrator"));
 
+                // add claims to roles - ovo triba rucno napravit nece automatski skupit i dodat u jwt
+                // rucno u ka profileservice.cs
+                var ar = roleManager.Roles.Where(x => x.Name == "Administrator").FirstOrDefault();
+                await roleManager.AddClaimAsync(ar, new Claim("adminRoleClaim1", "yes"));
+                await roleManager.AddClaimAsync(ar, new Claim("adminRoleClaim2", "yes"));
+                await roleManager.AddClaimAsync(ar, new Claim("adminRoleClaim3", "yes"));
+
                 var userMgr = scope.ServiceProvider.GetRequiredService<UserManager<ApplicationUser>>();
                 var admin = userMgr.FindByNameAsync("admin").Result;
                 if (admin == null)

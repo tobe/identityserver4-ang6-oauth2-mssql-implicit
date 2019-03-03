@@ -107,8 +107,8 @@ namespace AuthServer
                     RequireConsent = true, // The user needs to login to IdentityServer and grant consent
                     AllowOfflineAccess = true, // The client can request refresh tokens
                     AlwaysIncludeUserClaimsInIdToken = true, // Self-explanatory, gives more information about the client
-                    //AccessTokenType = AccessTokenType.Reference, // Send and receive a reference to a JWT token, do not self contain the JWT token. This makes the HTTP header shorter for a few bytes.
-                    AccessTokenType = AccessTokenType.Jwt,
+                    AccessTokenType = AccessTokenType.Reference, // Send and receive a reference to a JWT token, do not self contain the JWT token. This makes the HTTP header shorter for a few bytes.
+                    //AccessTokenType = AccessTokenType.Jwt,
 
                     /*
                      If you chose to enable refresh tokens via AllowOfflineAccess = true, you may experience the same behavior upon refreshing the access_token "GetProfileDataAsync does not executed!". So the claims inside the access_token stay the same although you get a new access_token with updated lifetime. If that is the case you can force them to always refresh from the Profile service by setting UpdateAccessTokenClaimsOnRefresh=true on the client configuration.

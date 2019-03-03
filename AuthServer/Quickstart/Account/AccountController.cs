@@ -19,6 +19,7 @@ using IdentityModel;
 using System.Linq;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 
 namespace IdentityServer4.Quickstart.UI
 {
@@ -46,6 +47,31 @@ namespace IdentityServer4.Quickstart.UI
             _clientStore = clientStore;
             _schemeProvider = schemeProvider;
             _events = events;
+        }
+
+        [HttpGet]
+        public async Task<IActionResult> LoginTest(string returnUrl) {
+            //var result = await _signInManager.PasswordSignInAsync(model.Username, model.Password, model.RememberLogin, lockoutOnFailure: true);
+            var adminUser = _userManager.Users.Where(x => x.UserName == "admin").FirstOrDefault();
+            await _signInManager.SignInAsync(adminUser, false);
+
+            if (!User.Identity.IsAuthenticated) {
+                Debug.WriteLine("=========> User.Identity.isAuthenticated NOT!");
+            }else {
+                Debug.WriteLine("=========> User.Identity.isAuthenticated YESSSSSSSS!");
+            }
+
+            await _events.RaiseAsync(
+                new UserLoginSuccessEvent(adminUser.UserName, adminUser.Id, adminUser.UserName)
+            );
+
+            // make sure the returnUrl is still valid, and if so redirect back to authorize endpoint or a local page
+            // the IsLocalUrl check is only necessary if you want to support additional local pages, otherwise IsValidReturnUrl is more strict
+            if(_interaction.IsValidReturnUrl(returnUrl) || Url.IsLocalUrl(returnUrl)) {
+                return Redirect(returnUrl);
+            }
+
+            return Redirect("/~");
         }
 
         /// <summary>

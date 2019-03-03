@@ -27,13 +27,16 @@ namespace ResourceServer
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddAuthentication(OAuth2IntrospectionDefaults.AuthenticationScheme)
-            /*.AddOAuth2Introspection(options =>
+            .AddOAuth2Introspection(options =>
             {
                 options.Authority = Configuration.GetSection("AuthService")["Authority"];
                 options.ClientId = Configuration.GetSection("AuthService")["ClientId"];
                 options.ClientSecret = Configuration.GetSection("AuthService")["ClientSecret"];
-            });*/
-            .AddJwtBearer(options => {
+
+                options.RoleClaimType = "role";
+                options.NameClaimType = "name";
+            });
+            /*.AddJwtBearer(options => {
                 // base-address of your identityserver
                 options.Authority = Configuration.GetSection("AuthService")["Authority"];
 
@@ -50,7 +53,7 @@ namespace ResourceServer
                     NameClaimType = "name",
                     RoleClaimType = "role"
                 };
-            });
+            });*/
             /*.AddOpenIdConnect("oidc", options => {
                 options.Authority = "http://localhost:5000";
                 options.RequireHttpsMetadata = false;
