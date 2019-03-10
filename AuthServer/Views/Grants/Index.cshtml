@@ -1,5 +1,23 @@
 ﻿@model GrantsViewModel
 
+<style>
+    #progressBar {
+        width: 100%;
+        height: 22px;
+        background: #EEE;
+        margin-top: 1.5rem;
+    }
+
+        #progressBar div {
+            height: 100%;
+            text-align: right;
+            padding: 0 10px;
+            line-height: 22px;
+            width: 0;
+            box-sizing: border-box;
+        }
+</style>
+
 <div class="grants">
     <div class="row page-header">
         <div class="col-sm-10">
@@ -10,8 +28,24 @@
         </div>
     </div>
 
-    @if (Model.Grants.Any() == false)
-    {
+    <strong>@Model.StatusMessage</strong>
+    @if(Model.StatusMessage == null) {
+        <div class="row" style="padding-left: 1.5rem">
+            Use the following QR code in order to pair up your phone with your account. The code refreshes every <strong>30 seconds</strong>.<br />
+
+            <div id="progressBar" class="progress">
+                <div class="progress-bar"></div>
+            </div>
+
+            <div class="col-md-6">
+                <img src="data:image/png;base64,@Model.QrCodeBase64Image" />
+
+                <br />
+            </div>
+        </div>
+    }
+
+    @if(Model.Grants.Any() == false) {
         <div class="row">
             <div class="col-sm-8">
                 <div class="alert alert-info">
@@ -19,15 +53,11 @@
                 </div>
             </div>
         </div>
-    }
-    else
-    {
-        foreach (var grant in Model.Grants)
-        {
+    } else {
+        foreach(var grant in Model.Grants) {
             <div class="row grant">
                 <div class="col-sm-2">
-                    @if (grant.ClientLogoUrl != null)
-                    {
+                    @if(grant.ClientLogoUrl != null) {
                         <img src="@grant.ClientLogoUrl">
                     }
                 </div>
@@ -36,31 +66,26 @@
                     <div>
                         <span class="created">Created:</span> @grant.Created.ToString("yyyy-MM-dd")
                     </div>
-                    @if (grant.Expires.HasValue)
-                    {
+                    @if(grant.Expires.HasValue) {
                         <div>
                             <span class="expires">Expires:</span> @grant.Expires.Value.ToString("yyyy-MM-dd")
                         </div>
                     }
-                    @if (grant.IdentityGrantNames.Any())
-                    {
+                    @if(grant.IdentityGrantNames.Any()) {
                         <div>
                             <div class="granttype">Identity Grants</div>
                             <ul>
-                                @foreach (var name in grant.IdentityGrantNames)
-                        {
+                                @foreach(var name in grant.IdentityGrantNames) {
                                     <li>@name</li>
                                 }
                             </ul>
                         </div>
                     }
-                    @if (grant.ApiGrantNames.Any())
-                    {
+                    @if(grant.ApiGrantNames.Any()) {
                         <div>
                             <div class="granttype">API Grants</div>
                             <ul>
-                                @foreach (var name in grant.ApiGrantNames)
-                                {
+                                @foreach(var name in grant.ApiGrantNames) {
                                     <li>@name</li>
                                 }
                             </ul>
@@ -77,3 +102,13 @@
         }
     }
 </div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        showProgressBar(30, 30, $('#progressBar'));
+    });
+</script>
+
+@section Scripts {
+    <partial name="_FingerprintAuthScripts" />
+}

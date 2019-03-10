@@ -10,6 +10,9 @@ namespace IdentityServer4.Quickstart.UI
     public class GrantsViewModel
     {
         public IEnumerable<GrantViewModel> Grants { get; set; }
+
+        public string StatusMessage { get; set; }
+        public string QrCodeBase64Image { get; set; }
     }
 
     public class GrantViewModel

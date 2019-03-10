@@ -1,0 +1,18 @@
+﻿<!-- Include SignalR here eventually... check https://github.com/aspnet/Docs/blob/master/aspnetcore/signalr/authn-and-authz/sample/Pages/_ValidationScriptsPartial.cshtml -->
+<script src="~/lib/signalr/dist/browser/signalr.min.js"></script>
+
+<script>
+    "use strict";
+    function showProgressBar(timeleft, timetotal, $element) {
+        if (timeleft === 0)
+            window.location.reload();
+
+        var progressBarWidth = timeleft * $element.width() / timetotal;
+        $element.find('div').animate({ width: progressBarWidth }, 500).html(timeleft % 60);
+        if(timeleft > 0) {
+            setTimeout(function () {
+                showProgressBar(timeleft - 1, timetotal, $element);
+            }, 1000);
+        }
+    };
+</script>

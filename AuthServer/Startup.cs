@@ -4,6 +4,7 @@
 
 using AuthServer.Data;
 using AuthServer.Models;
+using FingerprintAuth.Web.Hubs;
 using IdentityServer4.Services;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -75,6 +76,12 @@ namespace AuthServer
                     options.ClientId = "708996912208-9m4dkjb5hscn7cjrn5u0r4tbgkbj1fko.apps.googleusercontent.com";
                     options.ClientSecret = "wdfPY6t8H8cecgjlxud__4Gh";
                 });
+
+            // Fauth
+            services.AddFingerprintAuth(options => {
+                options.Domain = "192.168.1.2:24418";
+            });
+            services.AddSignalR();
         }
 
         public void Configure(IApplicationBuilder app)
@@ -88,6 +95,10 @@ namespace AuthServer
             {
                 app.UseExceptionHandler("/Home/Error");
             }
+
+            app.UseSignalR(routes => {
+                routes.MapHub<LoginHub>("/fauth");
+            });
 
             app.UseStaticFiles();
             app.UseIdentityServer();

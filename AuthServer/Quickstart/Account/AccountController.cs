@@ -20,6 +20,8 @@ using System.Linq;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using AuthServer.Data;
+using Microsoft.EntityFrameworkCore;
 
 namespace IdentityServer4.Quickstart.UI
 {
@@ -32,6 +34,8 @@ namespace IdentityServer4.Quickstart.UI
         private readonly IClientStore _clientStore;
         private readonly IAuthenticationSchemeProvider _schemeProvider;
         private readonly IEventService _events;
+        private readonly IHttpContextAccessor _httpContextAccessor;
+        private readonly ApplicationDbContext _dbContext;
 
         public AccountController(
             UserManager<ApplicationUser> userManager,
@@ -39,7 +43,9 @@ namespace IdentityServer4.Quickstart.UI
             IIdentityServerInteractionService interaction,
             IClientStore clientStore,
             IAuthenticationSchemeProvider schemeProvider,
-            IEventService events)
+            IEventService events,
+            IHttpContextAccessor httpContextAccessor,
+            ApplicationDbContext applicationDbContext)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -47,11 +53,13 @@ namespace IdentityServer4.Quickstart.UI
             _clientStore = clientStore;
             _schemeProvider = schemeProvider;
             _events = events;
+            _httpContextAccessor = httpContextAccessor;
+            _dbContext = applicationDbContext;
         }
 
         [HttpGet]
-        public async Task<IActionResult> LoginTest(string returnUrl) {
-            //var result = await _signInManager.PasswordSignInAsync(model.Username, model.Password, model.RememberLogin, lockoutOnFailure: true);
+        public async Task<IActionResult> LoginTest(string returnUrl, string challengeGuid) {
+            /*//var result = await _signInManager.PasswordSignInAsync(model.Username, model.Password, model.RememberLogin, lockoutOnFailure: true);
             var adminUser = _userManager.Users.Where(x => x.UserName == "admin").FirstOrDefault();
             await _signInManager.SignInAsync(adminUser, false);
 
@@ -71,7 +79,42 @@ namespace IdentityServer4.Quickstart.UI
                 return Redirect(returnUrl);
             }
 
-            return Redirect("/~");
+            return Redirect("/~");*/
+
+            // If the user is already logged in, redirect them to manage account options
+            if(_httpContextAccessor.HttpContext.User?.Identity.IsAuthenticated == true) {
+                //return LocalRedirect("/Identity/Account/Manage");
+                Debug.WriteLine("something failed here");
+
+                // something went wrong, show form with error
+                var xx = await BuildLoginViewModelAsync(returnUrl);
+                return View(xx);
+            }
+
+            if(challengeGuid != null) {
+                if(!Guid.TryParse(challengeGuid, out var guid))
+                    return View("Index");
+
+                // Log this user in.
+                var row = await _dbContext.LoginChallenges.Where(x => x.Id == guid.ToString()).FirstOrDefaultAsync();
+                if(row == null)
+                    return NotFound(); // Something went wrong with the login challenge row
+
+                var user = await _userManager.FindByNameAsync(row.Username);
+                if(user == null)
+                    return NotFound(); // Someone tried to login with a challenge which hasn't been completed yet
+
+                // All good. You either were legitimate, or you guessed 2^128 in 30 seconds. Either way, good job.
+                await _signInManager.SignInAsync(user, false);
+
+                return Redirect(returnUrl);
+            }
+
+            // Nothing here...?
+            //return View("Index");
+            // something went wrong, show form with error
+            var vm = await BuildLoginViewModelAsync(returnUrl);
+            return View(vm);
         }
 
         /// <summary>

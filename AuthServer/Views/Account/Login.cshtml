@@ -9,8 +9,7 @@
 
     <div class="row">
 
-        @if (Model.EnableLocalLogin)
-        {
+        @if(Model.EnableLocalLogin) {
             <div class="col-sm-6">
                 <div class="panel panel-default">
                     <div class="panel-heading">
@@ -30,8 +29,7 @@
                                     <label asp-for="Password"></label>
                                     <input type="password" class="form-control" placeholder="Password" asp-for="Password" autocomplete="off">
                                 </div>
-                                @if (Model.AllowRememberLogin)
-                                {
+                                @if(Model.AllowRememberLogin) {
                                     <div class="form-group login-remember">
                                         <label asp-for="RememberLogin">
                                             <input asp-for="RememberLogin">
@@ -56,17 +54,22 @@
             </div>
         }
 
-        @if (Model.VisibleExternalProviders.Any())
-        {
+        @if(Model.VisibleExternalProviders.Any()) {
             <div class="col-md-6 col-sm-6 external-providers">
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h3 class="panel-title">External Login</h3>
                     </div>
                     <div class="panel-body">
+
+                        <!-- FAUTHHHHHHHHHHHHHH -->
+                        <div id="progressBar" class="progress">
+                            <div class="progress-bar"></div>
+                        </div>
+                        <img class="img-responsive" id="qrcode" />
+
                         <ul class="list-inline">
-                            @foreach (var provider in Model.VisibleExternalProviders)
-                            {
+                            @foreach(var provider in Model.VisibleExternalProviders) {
                                 <li>
                                     <a class="btn btn-default"
                                        asp-action="ExternalLogin"
@@ -82,8 +85,7 @@
             </div>
         }
 
-        @if (!Model.EnableLocalLogin && !Model.VisibleExternalProviders.Any())
-        {
+        @if(!Model.EnableLocalLogin && !Model.VisibleExternalProviders.Any()) {
             <div class="alert alert-warning">
                 <strong>Invalid login request</strong>
                 There are no login schemes configured for this client.
@@ -91,3 +93,38 @@
         }
     </div>
 </div>
+
+@section Scripts {
+    <partial name="_FingerprintAuthScripts" />
+}
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        // Start the connection
+        var connection = new signalR.HubConnectionBuilder()
+            .withUrl('/fauth')
+            .build();
+
+        // Create a function which will receive the update
+        connection.on('loginComplete', function (guid) {
+            console.log('login complete for: ' + guid);
+
+            // Redirect!
+            var x = window.location.href.split('?');
+            var querystring = x[x.length - 1];
+
+            window.location.replace("/account/logintest?" + querystring + "&challengeGuid=" + guid);
+        });
+
+        // Transport fallback functionality is now built into start.
+        connection.start().then(function() {
+            console.log('connection started!');
+            connection.invoke('CreateChallenge').then(res => {
+                document.getElementById('qrcode').src = "data:image/png;base64," + res;
+
+                showProgressBar(30, 30, $('#progressBar'));
+            }).catch(err => console.log(err));
+            console.log('createChallenge invoked!');
+        });
+    });
+</script>
